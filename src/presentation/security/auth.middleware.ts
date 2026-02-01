@@ -3,9 +3,7 @@ import { env } from '../../config/env';
 import { PrismaUserRepository } from '../../infrastructure/prisma/repositories';
 import { Request, Response, NextFunction } from 'express';
 
-export interface AuthenticatedRequest extends Request { user?: { id: string; role: string } }
-
-export function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+export function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
     const header = req.headers['authorization'];
     if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ message: 'Missing token' });
@@ -19,7 +17,7 @@ export function authenticate(req: AuthenticatedRequest, res: Response, next: Nex
 }
 
 export function requireRole(role: 'ADMIN' | 'USER') {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return res.status(401).json({ message: 'Unauthenticated' });
     if (req.user.role !== role) return res.status(403).json({ message: 'Forbidden' });
     next();
